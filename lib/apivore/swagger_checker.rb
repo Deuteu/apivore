@@ -1,3 +1,5 @@
+require 'English'
+
 module Apivore
   class SwaggerChecker
     PATH_TO_CHECKER_MAP = {}
@@ -6,27 +8,31 @@ module Apivore
       PATH_TO_CHECKER_MAP[path] ||= new(path)
     end
 
-    def has_path?(path)
-      mappings.has_key?(path)
+    def path?(path)
+      mappings.key?(path)
     end
+    alias has_path? path? # TODO: Deprecate
 
-    def has_method_at_path?(path, method)
-      mappings[path].has_key?(method)
+    def method_at_path?(path, method)
+      mappings[path].key?(method)
     end
+    alias has_method_at_path? method_at_path? # TODO: Deprecate
 
-    def has_response_code_for_path?(path, method, code)
-      mappings[path][method].has_key?(code.to_s)
+    def response_code_for_path?(path, method, code)
+      mappings[path][method].key?(code.to_s)
     end
+    alias has_response_code_for_path? response_code_for_path? # TODO: Deprecate
 
     def response_codes_for_path(path, method)
-      mappings[path][method].keys.join(", ")
+      mappings[path][method].keys.join(', ')
     end
 
-    def has_matching_document_for(path, method, code, body)
+    def matching_document_for?(path, method, code, body)
       JSON::Validator.fully_validate(
         swagger, body, fragment: fragment(path, method, code)
       )
     end
+    alias has_matching_document_for matching_document_for? # TODO: Deprecate
 
     def fragment(path, method, code)
       path_fragment = mappings[path][method.to_s][code.to_s]
@@ -34,26 +40,23 @@ module Apivore
     end
 
     def remove_tested_end_point_response(path, method, code)
-      return if untested_mappings[path].nil? ||
-        untested_mappings[path][method].nil?
+      return if untested_mappings[path].nil? || untested_mappings[path][method].nil?
+
       untested_mappings[path][method].delete(code.to_s)
-      if untested_mappings[path][method].size == 0
-        untested_mappings[path].delete(method)
-        if untested_mappings[path].size == 0
-          untested_mappings.delete(path)
-        end
-      end
+
+      return unless untested_mappings[path][method].empty?
+
+      untested_mappings[path].delete(method)
+
+      untested_mappings.delete(path) if untested_mappings[path].empty?
     end
 
     def base_path
       @swagger.base_path
     end
 
-    def response=(response)
-      @response = response
-    end
-
     attr_reader :response, :swagger, :swagger_path, :untested_mappings
+    attr_writer :response
 
     private
 
@@ -72,21 +75,23 @@ module Apivore
 
     def fetch_swagger!
       session = ActionDispatch::Integration::Session.new(Rails.application)
+
       begin
         session.get(swagger_path)
-      rescue
-        fail "Unable to perform GET request for swagger json: #{swagger_path} - #{$!}."
+      rescue StandardError
+        raise "Unable to perform GET request for swagger json: #{swagger_path} - #{$ERROR_INFO}."
       end
-       JSON.parse(session.response.body)
+
+      JSON.parse(session.response.body)
     end
 
     def validate_swagger!
       errors = swagger.validate
-      unless errors.empty?
-        msg = "The document fails to validate as Swagger #{swagger.version}:\n"
-        msg += errors.join("\n")
-        fail msg
-      end
+      return if errors.empty?
+
+      msg = "The document fails to validate as Swagger #{swagger.version}:\n"
+      msg += errors.join("\n")
+      raise msg
     end
 
     def setup_mappings!
@@ -94,7 +99,7 @@ module Apivore
       @swagger.each_response do |path, method, response_code, fragment|
         @mappings[path] ||= {}
         @mappings[path][method] ||= {}
-        raise "duplicate" unless @mappings[path][method][response_code].nil?
+        raise :duplicate unless @mappings[path][method][response_code].nil?
         @mappings[path][method][response_code] = fragment
       end
 
