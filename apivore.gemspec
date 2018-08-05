@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'pry', '~> 0'
   s.add_development_dependency 'rake', '~> 10.3'
   s.add_development_dependency 'rspec-rails', '~> 3'
+  s.add_development_dependency 'rubocop', '~> 0.58.2'
 
   # Rails 5 stopped support for ruby < 2.2.2
   # Hack to support currently suported ruby versions
