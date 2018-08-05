@@ -5,4 +5,3 @@ end
 
 require 'fixtures/application.rb'
 require 'fixtures/controllers.rb'
-require 'rspec/rails'
