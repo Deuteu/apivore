@@ -11,6 +11,6 @@ RSpec.configure do |config|
 end
 
 # Load and register a local copy of the draft04 JSON schema to prevent network calls when resolving $refs from the swagger 2.0 schema
-draft04 = JSON.parse(File.read(File.expand_path("../../data/draft04_schema.json", __FILE__)))
+draft04 = JSON.parse(File.read(File.expand_path('../data/draft04_schema.json', __dir__)))
 draft04_schema = JSON::Schema.new(draft04, Addressable::URI.parse('http://json-schema.org/draft-04/schema#'))
 JSON::Validator.add_schema(draft04_schema)
