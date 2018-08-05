@@ -1,6 +1,5 @@
 module Apivore
   class AllRoutesTestedValidator
-
     def matches?(swagger_checker)
       @errors = []
       swagger_checker.untested_mappings.each do |path, methods|
@@ -15,7 +14,7 @@ module Apivore
     end
 
     def description
-      "have tested all documented routes"
+      'have tested all documented routes'
     end
 
     def failure_message

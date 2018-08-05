@@ -1,7 +1,7 @@
 module Apivore
   class CustomSchemaValidator
     # This constant is an example custom schema included with the gem
-    WF_SCHEMA = File.expand_path("../../data/custom_schemata/westfield_api_standards.json", File.dirname(__FILE__))
+    WF_SCHEMA = File.expand_path('../../data/custom_schemata/westfield_api_standards.json', File.dirname(__FILE__))
 
     def initialize(custom_schema)
       @schema = custom_schema

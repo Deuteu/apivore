@@ -1,18 +1,18 @@
 require 'spec_helper'
 
 describe 'Apivore::RailsShim' do
-
   describe '.action_dispatch_request_args' do
-    subject {
+    subject do
       Apivore::RailsShim.action_dispatch_request_args(
         path,
         params: params,
         headers: headers
       )
-    }
+    end
+
     let(:path) { '/posts' }
-    let(:params) { { 'foo' => 'bar' } }
-    let(:headers) { { 'X-Foo' => 'baz' } }
+    let(:params) { {'foo' => 'bar'} }
+    let(:headers) { {'X-Foo' => 'baz'} }
 
     before do
       stub_const('ActionPack::VERSION::MAJOR', actionpack_major_version)
@@ -30,7 +30,7 @@ describe 'Apivore::RailsShim' do
       let(:actionpack_major_version) { 5 }
 
       it 'returns path as a positional argument and params and headers as keyword arguments' do
-        expect(subject).to eq([path, { params: params, headers: headers }])
+        expect(subject).to eq([path, {params: params, headers: headers}])
       end
     end
   end

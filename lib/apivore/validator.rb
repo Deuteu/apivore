@@ -30,7 +30,7 @@ module Apivore
         swagger_checker.response = response
         post_checks(swagger_checker)
 
-        if has_errors? && response.body.length > 0
+        if has_errors? && !response.body.empty?
           errors << "\nResponse body:\n #{JSON.pretty_generate(JSON.parse(response.body))}"
         end
 
@@ -80,7 +80,7 @@ module Apivore
           " a documented response code of #{expected_response_code} at path"\
           " #{method} #{path}. "\
           "\n             Available response codes: #{swagger_checker.response_codes_for_path(path, method)}"
-      elsif method == "get" && swagger_checker.fragment(path, method, expected_response_code).nil?
+      elsif method == 'get' && swagger_checker.fragment(path, method, expected_response_code).nil?
         errors << "Swagger doc: #{swagger_checker.swagger_path} missing"\
           " response model for get request with #{path} for code"\
           " #{expected_response_code}"
@@ -88,37 +88,38 @@ module Apivore
     end
 
     def check_status_code
-      if response.status != expected_response_code
-        errors << "Path #{path} did not respond with expected status code."\
-          " Expected #{expected_response_code} got #{response.status}"\
-      end
+      return if response.status == expected_response_code
+
+      error = "Path #{path} did not respond with expected status code. Expected #{expected_response_code} got #{response.status}"
+      errors << error
     end
 
     def check_response_is_valid(swagger_checker)
       swagger_errors = swagger_checker.has_matching_document_for(
         path, method, response.status, response_body
       )
-      unless swagger_errors.empty?
-        errors.concat(
-          swagger_errors.map do |e|
-            e.sub("'#", "'#{full_path(swagger_checker)}#").gsub(
-              /^The property|in schema.*$/,''
-            )
-          end
-        )
+
+      return if swagger_errors.empty?
+
+      formatted_swagger_errors = swagger_errors.map do |e|
+        e.sub("'#", "'#{full_path(swagger_checker)}#").
+          gsub(/^The property|in schema.*$/, '')
       end
+
+      errors.concat(formatted_swagger_errors)
     end
 
     def response_body
       JSON.parse(response.body) unless response.body.blank?
     end
 
-    def has_errors?
+    def errors?
       !errors.empty?
     end
+    alias has_errors? errors? # TODO: Deprecate has_errors?
 
     def failure_message
-      errors.join(" ")
+      errors.join(' ')
     end
 
     def errors
@@ -135,7 +136,6 @@ module Apivore
     end
 
     # Required by rails
-    def reset_template_assertion
-    end
+    def reset_template_assertion; end
   end
 end
