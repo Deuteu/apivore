@@ -1,0 +1,23 @@
+Layout/DotPosition:
+  EnforcedStyle: trailing
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: no_space
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/LineLength:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/EachWithObject:
+  Enabled: false
+Style/MutableConstant:
+  Exclude:
+    - 'lib/apivore/swagger_checker.rb' # Ignore because not real immutable var
